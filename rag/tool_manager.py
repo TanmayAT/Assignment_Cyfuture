@@ -17,9 +17,7 @@ agent_prompt = PromptTemplate(
     input_variables=["query"],
     template="""
 You are a helpful assistant. Based on the query, decide which tool to use from the following options:
-1. get_stock_price - To get stock prices for a given ticker symbol.
-2. get_company_facts - To get company facts for a given ticker symbol.
-3. WebSearch - To search the web for the latest information.
+1. get_update_check : This tool helps to get the data from the database
 
 Provide only the name of the tool to use, along with any required arguments in valid JSON format.
 
@@ -28,15 +26,15 @@ Don't give any '''{{}}''' or ```json or ``` — these are highly penalized.
 
 Example:
 {{
-  "tool": "get_stock_price",
-  "ticker": "AAPL",
-  "query": "What is the stock price of Apple?"
+  "tool": "get_update_check",
+  "id": "46544545154555155424",
+  "query": "can you please get the update check for this id?"
 }}
 
 Json Schema:
 {{
   "tool": "string",
-  "ticker": "string",
+  "id": "int",
   "query": "string"
 }}
 

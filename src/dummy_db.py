@@ -1,35 +1,38 @@
+# dummy_data_push.py
 import random
-import uuid
-import datetime
-import json
+from connector import MongoConnector  # Make sure your connector.py is in same dir
 
-def get_dummy_data(num_records=10):
-    """
-    Generate datapoints for the updates checking and complaints progress report and tracking
-    """
-    statuses = ['Open', 'In Progress', 'Resolved', 'Closed', 'Escalated']
-    complaint_types = ['Network Issue', 'Billing Error', 'Slow Internet', 'Connection Drop', 'Hardware Fault']
-    departments = ['Technical', 'Customer Service', 'Billing', 'Field Team']
-    
-    dummy_data = []
+def generate_dummy_complaints(num=100):
+    names = ["Amit", "Priya", "Raj", "Neha", "Deepak", "Sneha", "Rohit", "Anjali", "Manish", "Kiran"]
+    issues = [
+        "Internet not working", "Frequent disconnection", "Wrong billing", "Slow connection",
+        "Router malfunction", "App not loading", "SMS not delivered", "Unable to recharge"
+    ]
 
-    for _ in range(num_records):
-        record = {
-            "complaint_id": str(uuid.uuid4()),
-            "mobile_number": f"+1-{random.randint(100, 999)}-{random.randint(1000, 9999)}",
-            "name": f"User_{random.randint(1, 100)}",
-            "user_id": f"user_{random.randint(1000, 9999)}",
-            "complaint_type": random.choice(complaint_types),
-            "status": random.choice(statuses),
-            "department": random.choice(departments),
-            "progress_percent": round(random.uniform(0, 100), 2),
-            "last_updated": (datetime.datetime.now() - datetime.timedelta(days=random.randint(0, 30))).isoformat(),
-        }
-        dummy_data.append(record)
+    complaints = []
 
-    return dummy_data
+    for _ in range(num):
+        name = random.choice(names)
+        phone_number = f"+91-{random.randint(6000000000, 9999999999)}"
+        email = f"{name.lower()}{random.randint(100,999)}@example.com"
+        complaint_details = random.choice(issues)
 
-# Example usage:
+        complaints.append((name, phone_number, email, complaint_details))
+
+    return complaints
+
+
+def push_dummy_complaints():
+    mongo = MongoConnector("mongodb+srv://vaidikpandeytt:JJEmTHNTyFgGPnjq@communicationdb.4zlwhdh.mongodb.net/?retryWrites=true&w=majority&appName=Communicationdb")
+
+    dummy_data = generate_dummy_complaints(2000)
+    count = 0
+    for name, phone, email, detail in dummy_data:
+        mongo.create_complaint(name, phone, email, detail)
+        count += 1
+
+    print(f"✅ Successfully inserted {count} dummy complaints.")
+
+
 if __name__ == "__main__":
-    data = get_dummy_data(2000)
-    print(json.dumps(data, indent=2))
+    push_dummy_complaints()
