@@ -4,7 +4,8 @@ import uuid
 
 class MongoConnector:
     def __init__(self, uri, db_name="complaintsDB"):
-        self.client = MongoClient(uri)
+        # Force TLS (to avoid SSL handshake issues)
+        self.client = MongoClient(uri, tls=True)
         self.db = self.client[db_name]
         self.collection = self.db["complaints"]
 
@@ -29,5 +30,3 @@ class MongoConnector:
         if not result:
             return {"error": "Complaint ID not found"}
         return result
-
-

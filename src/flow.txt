@@ -1,1 +1,4 @@
-EntryPoint --> Model --> Process(fetching by db connnector) --> Response 
+Communication ( EntryPoint ) --> Model ---> Tool Prompt ( If Tool "None") ----> Conversational Prompt 
+                                                            
+
+                                                            Not none -----------------------> MCP -----> 

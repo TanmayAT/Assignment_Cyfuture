@@ -1,0 +1,5 @@
+google-generativeai==0.4.1         # For google.generativeai
+fastapi==0.110.0                   # Web framework
+pydantic==2.7.1                    # Data validation with FastAPI
+pymongo==4.7.2                     # MongoDB connector
+uvicorn[standard]==0.30.1          # ASGI server to run FastAPI
