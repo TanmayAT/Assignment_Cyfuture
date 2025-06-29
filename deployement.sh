@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e  # Exit on error
+set -e  # Exit on any error
 
 echo "🔄 Updating system packages..."
 sudo apt-get update
@@ -18,10 +18,8 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | \
 
 echo "📂 Adding Docker repository..."
 echo \
-  "deb [arch=$(dpkg --print-architecture) \
-  signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 echo "🔄 Updating package list after adding Docker repo..."
@@ -36,29 +34,23 @@ sudo usermod -aG docker "$USER"
 echo "🔁 Restarting Docker service..."
 sudo systemctl restart docker
 
-# Step 6: Clone the repo if not already cloned
+# Step 6: Clone or update the repo
 REPO_DIR="Assignment_Cyfuture"
 REPO_URL="git@github.com:TanmayAT/Assignment_Cyfuture.git"
 
 if [ ! -d "$REPO_DIR" ]; then
   echo "📥 Cloning the repository via SSH..."
   git clone "$REPO_URL"
-else
-  echo "Pulling latest changes from the repository..."
-  cd "$REPO_DIR"
-  git pull origin main
-  
-
 fi
 
-# Step 7: Enter repo and update
+echo "📦 Entering repo and updating..."
 cd "$REPO_DIR"
-echo "📦 Switching to main branch and pulling latest changes..."
 git checkout main
+git fetch origin main
 git pull origin main
 
-# Step 8: Build and run containers
+# Step 7: Build and run containers
 echo "🚀 Building and running Docker containers..."
 docker compose up -d --build
 
-echo "✅ Done! You may need to run 'newgrp docker' or restart the terminal for Docker group changes to take effect."
+echo "✅ Done! You may need to run 'newgrp docker' or restart your terminal for group changes to take effect."
