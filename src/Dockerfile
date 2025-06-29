@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM python:3.12-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN pip install --upgrade pip && \
     pip install --prefix=/install -r requirements.txt
 
 # Stage 2: Production
-FROM python:3.12-slim AS production
+FROM python:3.11-slim AS production
 
 WORKDIR /app
 
