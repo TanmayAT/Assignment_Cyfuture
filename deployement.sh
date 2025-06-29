@@ -44,7 +44,11 @@ if [ ! -d "$REPO_DIR" ]; then
   echo "📥 Cloning the repository via SSH..."
   git clone "$REPO_URL"
 else
-  echo "✅ Repository already cloned."
+  echo "Pulling latest changes from the repository..."
+  cd "$REPO_DIR"
+  git pull origin main
+  
+
 fi
 
 # Step 7: Enter repo and update
