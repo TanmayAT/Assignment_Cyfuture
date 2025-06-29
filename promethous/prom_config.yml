@@ -2,9 +2,9 @@ global:
   scrape_interval: 4s
 
 scrape_configs:
-  - job_name: 'src-service'
+  - job_name: 'src'
     static_configs:
-      - targets: ['app:8080']  
+      - targets: ['src:8000']  
 
   - job_name: 'loki'
     static_configs:

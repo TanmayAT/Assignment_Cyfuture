@@ -1,11 +1,10 @@
 version: "3.9"
 
 services:
-  app:
+  src:
     build:
       context: ./src
       dockerfile: Dockerfile
-    container_name: source_code
     ports:
       - "8000:8000"
     volumes:
