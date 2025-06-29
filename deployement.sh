@@ -1,40 +1,60 @@
 #!/bin/bash
 
-set -e  # Exit on any error
+set -e  # Exit on error
 
-# Step 1: Update package list
-echo "Updating packages..."
+echo "🔄 Updating system packages..."
 sudo apt-get update
 
-# Step 2: Install Docker and Docker Compose
-echo "Installing Docker and Docker Compose..."
-sudo apt-get install -y docker.io docker-compose
+echo "🧼 Removing any old Docker versions..."
+sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
 
-# Step 3: Add current user to Docker group
-echo "Adding current user to Docker group..."
-sudo usermod -aG docker $USER
+echo "📦 Installing dependencies..."
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-# Step 4: Restart Docker
-echo "Restarting Docker..."
+echo "🔐 Adding Docker's official GPG key..."
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | \
+    sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo "📂 Adding Docker repository..."
+echo \
+  "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+echo "🔄 Updating package list after adding Docker repo..."
+sudo apt-get update
+
+echo "🐳 Installing Docker and Docker Compose V2..."
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin git
+
+echo "👤 Adding current user to Docker group..."
+sudo usermod -aG docker "$USER"
+
+echo "🔁 Restarting Docker service..."
 sudo systemctl restart docker
 
-# Step 5: Clone the repo via SSH if not already cloned
+# Step 6: Clone the repo if not already cloned
 REPO_DIR="Assignment_Cyfuture"
 REPO_URL="git@github.com:TanmayAT/Assignment_Cyfuture.git"
 
 if [ ! -d "$REPO_DIR" ]; then
-  echo "Cloning the repository via SSH..."
+  echo "📥 Cloning the repository via SSH..."
   git clone "$REPO_URL"
 else
-  echo "Repository already cloned."
+  echo "✅ Repository already cloned."
 fi
 
-# Step 6: Navigate to repo and update
+# Step 7: Enter repo and update
 cd "$REPO_DIR"
-echo "Switching to main branch and pulling latest changes..."
+echo "📦 Switching to main branch and pulling latest changes..."
 git checkout main
 git pull origin main
 
-# Step 7: Build and run containers
-echo "Building and running containers..."
-docker-compose up -d --build
+# Step 8: Build and run containers
+echo "🚀 Building and running Docker containers..."
+docker compose up -d --build
+
+echo "✅ Done! You may need to run 'newgrp docker' or restart the terminal for Docker group changes to take effect."

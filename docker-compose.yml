@@ -15,69 +15,69 @@ services:
       - app-network
 
 
-nginx-service:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    image: nginx-image
-    container_name: nginx-container
+  nginx-service:
+      build:
+        context: ./nginx
+        dockerfile: Dockerfile
+      image: nginx-image
+      container_name: nginx-container
+      ports:
+        - "80:80"
+      depends_on:
+        - app
+      networks:
+        - app-network
+
+  prometheus-service:
+      image: prom/prometheus
+      container_name: prometheus-container
+      ports:
+        - "9090:9090"
+      volumes:
+        - ./promethous/prom_config.yml:/etc/prometheus/prometheus.yml
+        - prometheus-data:/prometheus
+      networks:
+        - app-network
+
+
+  grafana-service:
+    image : grafana/grafana
+    container_name: grafana-container
     ports:
-      - "80:80"
+        - "3000:3000"
     depends_on:
-      - src-service
-    networks:
-      - app-network
+        - prometheus-service
+    environment:
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+        - GF_AUTH_ANONYMOUS_ENABLED=true
+        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
-prometheus-service:
-    image: prom/prometheus
-    container_name: prometheus-container
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./promethous/prom_config.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    networks:
-      - app-network
-
-
-grafana-service:
-   image : grafana/grafana
-   container_name: grafana-container
-   ports:
-      - "3000:3000"
-   depends_on:
-      - prometheus-service
-   environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-
-   networks :
-      - app-network  
+    networks :
+        - app-network  
 
 
 
-loki-service:
-    image: grafana/loki:3.4.1
-    container_name: loki-service
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./loki/loki-config.yml:/etc/loki/loki-config.yml
-      -  loki-data:/loki
-    command: -config.file=/etc/loki/loki-config.yml
-    networks:
-      - app-network
+  loki-service:
+      image: grafana/loki:3.4.1
+      container_name: loki-service
+      ports:
+        - "3100:3100"
+      volumes:
+        - ./loki/loki-config.yml:/etc/loki/loki-config.yml
+        -  loki-data:/loki
+      command: -config.file=/etc/loki/loki-config.yml
+      networks:
+        - app-network
 
-promtail:
-    image: grafana/promtail:3.4.1
-    container_name: promtail
-    volumes:
-      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
-      - ./logs:/var/log/app
-    command: -config.file=/etc/promtail/promtail-config.yml
-    networks:
-      - app-network
+  promtail:
+      image: grafana/promtail:3.4.1
+      container_name: promtail
+      volumes:
+        - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+        - ./logs:/var/log/app
+      command: -config.file=/etc/promtail/promtail-config.yml
+      networks:
+        - app-network
 
 
 
