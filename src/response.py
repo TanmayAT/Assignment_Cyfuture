@@ -24,12 +24,14 @@ def model_function(user_query, context: str):
     return response.text.strip()
 
 
-def clean_json_string(json_string: str) -> str:
-    """
-    Cleans the LLM response by removing markdown formatting like triple backticks and extra whitespace.
-    """
-    cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", json_string.strip(), flags=re.IGNORECASE)
-    return cleaned.strip()
+def clean_function(text: str):
+    pattern = r'({\s*[^{}]*(".*?"\s*:\s*".*?"\s*,?\s*)+})'
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        return match.group(1)
+    else:
+        return {"error": "No JSON object found"}
+
 
 def parse_tool_call(output: dict):
     try:
@@ -48,13 +50,17 @@ async def smart_model_handler(user_query, request_id=0, chat_store=None):
     print(f"[User Query]: {user_query}")
 
     tool_decider_prompt = Tool_Prompt
+
     model = genai.GenerativeModel("gemini-2.0-flash")
 
     try:
-        tool_response = model.generate_content(tool_decider_prompt)
+        tool_response = model.generate_content(tool_decider_prompt + user_query)
         print(f"[Tool Response]: {tool_response.text}")
-        clean_resp = clean_json_string(tool_response.text)
+        
+        clean_resp = clean_function(tool_response.text)
+        print(f"[Cleaned Tool Response]: {clean_resp}")
         parsed = json.loads(clean_resp)
+        print(f"[Parsed Tool Call]: {parsed}")
     except Exception as e:
         print(f"[Tool JSON Parse Failed]: {e}")
         parsed = {"tool": "none"}

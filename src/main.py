@@ -39,6 +39,7 @@ async def communicate(request: Request, request_id: int):
 
         query = body.get("query", "").strip()
         if not query:
+            
             return JSONResponse(content={"error": "No query provided"}, status_code=400)
 
         logger.debug(f"[request_id: {request_id}] Query: {query}")
