@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 import logging
 from .response import smart_model_handler  
 
+
 # Configure logging
 logging.basicConfig(filename="/app/app.log" ,level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

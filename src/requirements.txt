@@ -8,3 +8,4 @@ langchain-community # Community integrations for LangChain
 mcp
 fastmcp
 grpcio>=1.56.0
+streamlit
