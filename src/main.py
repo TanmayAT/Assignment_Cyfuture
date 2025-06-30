@@ -1,15 +1,28 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 from .response import smart_model_handler  
 
-
 # Configure logging
-logging.basicConfig(filename="/app/app.log" ,level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    filename="/app/app.log",
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 builder = FastAPI()
+
+# ✅ CORS Middleware to allow frontend calls
+builder.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can set specific origins like ["http://localhost:5173"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Chat store to maintain context
 chat_store = {}
@@ -31,7 +44,7 @@ async def root():
 async def health():
     return JSONResponse(content={"status": "ok"}, status_code=200)
 
-
+# Main Chat Endpoint
 @builder.post("/communicate")
 async def communicate(request: Request, request_id: int):
     try:
@@ -40,12 +53,10 @@ async def communicate(request: Request, request_id: int):
 
         query = body.get("query", "").strip()
         if not query:
-            
             return JSONResponse(content={"error": "No query provided"}, status_code=400)
 
         logger.debug(f"[request_id: {request_id}] Query: {query}")
 
-        
         reply = await smart_model_handler(query, request_id, chat_store)
 
         # ✅ Save conversation in context
